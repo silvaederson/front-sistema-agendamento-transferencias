@@ -21,10 +21,7 @@ import { Component, Vue } from 'vue-property-decorator';
 
 @Component
 export default class ListaTransferencias extends Vue {
-  transferencias = [
-    // Exemplo de transferências para exibição
-    { contaOrigem: '1234567890', contaDestino: '0987654321', valor: 1500, dataTransferencia: '2024-05-30' }
-  ];
+  transferencias = [];
 
   headers = [
     { text: 'Conta de Origem', value: 'contaOrigem' },
@@ -32,9 +29,25 @@ export default class ListaTransferencias extends Vue {
     { text: 'Valor', value: 'valor' },
     { text: 'Data de Transferência', value: 'dataTransferencia' }
   ];
+
+  async mounted() {
+    await this.carregarTransferencias();
+  }
+
+  async carregarTransferencias() {
+    try {
+      const response = await fetch('http://localhost:8080/api/transferencias');
+      if (!response.ok) {
+        throw new Error('Erro ao carregar transferências');
+      }
+      this.transferencias = await response.json();
+    } catch (error) {
+      console.error('Erro ao carregar transferências:', error);
+    }
+  }
 }
 </script>
 
 <style scoped>
-/* Seus estilos específicos para este componente aqui */
+/*  */
 </style>

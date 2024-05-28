@@ -4,13 +4,34 @@
       <v-toolbar-title>Agendador de Transferências</v-toolbar-title>
     </v-app-bar>
     <v-main>
-      <div>
-        <v-text-field v-model="contaOrigem" label="Conta de Origem"></v-text-field>
-        <v-text-field v-model="contaDestino" label="Conta de Destino"></v-text-field>
-        <v-text-field v-model="valor" label="Valor"></v-text-field>
-        <v-text-field v-model="dataTransferencia" label="Data de Transferência"></v-text-field>
-        <v-btn @click="agendarTransferencia">Agendar</v-btn>
-      </div>
+      <v-container>
+        <v-card>
+          <v-card-title>Agendar Transferência</v-card-title>
+          <v-card-text>
+            <v-form @submit.prevent="agendarTransferencia">
+              <v-text-field v-model="transferencia.contaOrigem" label="Conta de Origem" required></v-text-field>
+              <v-text-field v-model="transferencia.contaDestino" label="Conta de Destino" required></v-text-field>
+              <v-text-field v-model="transferencia.valor" label="Valor" type="number" required></v-text-field>
+              <v-text-field v-model="transferencia.dataTransferencia" label="Data de Transferência" type="date" required></v-text-field>
+              <v-btn type="submit" color="primary">Agendar</v-btn>
+            </v-form>
+          </v-card-text>
+        </v-card>
+
+        <v-card>
+          <v-card-title>Lista de Transferências</v-card-title>
+          <v-card-text>
+            <v-data-table :headers="headers" :items="transferencias" class="elevation-1">
+              <template v-slot:item.dataTransferencia="{ item }">
+                {{ new Date(item.dataTransferencia).toLocaleDateString() }}
+              </template>
+              <template v-slot:item.valor="{ item }">
+                {{ item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
+      </v-container>
     </v-main>
     <v-footer app>
       <span>&copy; {{ new Date().getFullYear() }}</span>
@@ -23,47 +44,29 @@ export default {
   name: 'App',
   data() {
     return {
-      contaOrigem: '',
-      contaDestino: '',
-      valor: '',
-      dataTransferencia: ''
+      transferencia: {
+        contaOrigem: '',
+        contaDestino: '',
+        valor: 0,
+        dataTransferencia: ''
+      },
+      transferencias: [],
+      headers: [
+        { text: 'Conta de Origem', value: 'contaOrigem' },
+        { text: 'Conta de Destino', value: 'contaDestino' },
+        { text: 'Valor', value: 'valor' },
+        { text: 'Data de Transferência', value: 'dataTransferencia' }
+      ]
     };
   },
   methods: {
     agendarTransferencia() {
-      const requestBody = {
-        contaOrigem: this.contaOrigem,
-        contaDestino: this.contaDestino,
-        valor: parseFloat(this.valor),
-        dataTransferencia: this.dataTransferencia
-      };
-
-      fetch('http://localhost:8080/api/transferencias', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody)
-      })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Erro na requisição');
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Transferência agendada com sucesso:', data);
-          // Você pode adicionar feedback para o usuário aqui se desejar
-        })
-        .catch(error => {
-          console.error('Erro ao agendar transferência:', error);
-          // Você pode adicionar feedback para o usuário aqui se desejar
-        });
+      console.log(this.transferencia);
     }
   }
 };
 </script>
 
-<style>
-/* Seus estilos globais aqui */
+<style scoped>
+/* */
 </style>

@@ -1,39 +1,26 @@
-<template>
-  <v-container>
-    <v-card>
-      <v-card-title>Agendar Transferência</v-card-title>
-      <v-card-text>
-        <v-form @submit.prevent="agendarTransferencia">
-          <v-text-field v-model="transferencia.contaOrigem" label="Conta de Origem" required></v-text-field>
-          <v-text-field v-model="transferencia.contaDestino" label="Conta de Destino" required></v-text-field>
-          <v-text-field v-model="transferencia.valor" label="Valor" type="number" required></v-text-field>
-          <v-text-field v-model="transferencia.dataTransferencia" label="Data de Transferência" type="date" required></v-text-field>
-          <v-btn type="submit" color="primary">Agendar</v-btn>
-        </v-form>
-      </v-card-text>
-    </v-card>
-  </v-container>
-</template>
+agendarTransferencia() {
+  // Converte a data para o formato esperado pelo back-end
+  this.transferencia.dataTransferencia = new Date(this.transferencia.dataTransferencia).toISOString().split('T')[0];
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-
-@Component
-export default class AgendarTransferencia extends Vue {
-  transferencia = {
-    contaOrigem: '',
-    contaDestino: '',
-    valor: 0,
-    dataTransferencia: ''
-  };
-
-  agendarTransferencia() {
-    // Lógica para agendar a transferência
-    console.log(this.transferencia);
-  }
+  // Faz a requisição POST para agendar a transferência
+  fetch('http://localhost:8080/api/transferencias', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(this.transferencia)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Erro na requisição');
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Transferência agendada com sucesso:', data);
+    this.carregarTransferencias();
+  })
+  .catch(error => {
+    console.error('Erro ao agendar transferência:', error);
+  });
 }
-</script>
-
-<style scoped>
-/* Seus estilos específicos para este componente aqui */
-</style>
